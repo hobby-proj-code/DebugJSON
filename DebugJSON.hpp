@@ -198,6 +198,15 @@ public:
             int a = nullptr; // error not supported type
         }
     }
+
+    template <typename... Args>
+    bool remove(Args... args)
+    {
+        PathElement pathElems[] = {
+            {(const char *)args,
+             std::is_same<int, Args>::value}...};
+        return JSONRemove({jsonBuff, buffSize, pathElems, sizeof(pathElems) / sizeof(PathElement)}).value;
+    }
 };
 
 template <int length>

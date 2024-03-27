@@ -448,10 +448,10 @@ JSONParseOutput JSONParse(JSONParseInput input)
                 }
                 break;
             case JSS_SEARCH_KEY:
-                if(currState == JS_COMMA_OR_END)
+                /*if(currState == JS_COMMA_OR_END)
                 {
                     output.prevCommaInSubPart = currIter;
-                }
+                }*/
                 /*if(currState == JS_VALUE_OBJECT)
                 {
                     output.lastObjStart = currIter;
@@ -492,7 +492,7 @@ JSONParseOutput JSONParse(JSONParseInput input)
                     {
                     case JS_VALUE_OBJECT:
                         output.searchState = JSS_CAPTURE_OBJECT;
-                        output.prevCommaInSubPart = 0;
+                        //output.prevCommaInSubPart = 0;
                         output.hasElementInSubPart = 0;
                         break;
                     case JS_VALUE_ARRAY:
@@ -503,7 +503,7 @@ JSONParseOutput JSONParse(JSONParseInput input)
                             output.lastArrayLevel = -1;
                         }
                         output.searchState = JSS_CAPTURE_ARRAY;
-                        output.prevCommaInSubPart = 0;
+                        //output.prevCommaInSubPart = 0;
                         output.hasElementInSubPart = 0;
                         break;
                     case JS_VALUE_STRING:
@@ -532,10 +532,10 @@ JSONParseOutput JSONParse(JSONParseInput input)
                         && nextState == JS_SEARCH_VALUE_TYPE)
                     {
                         output.lastArrayLevel++;
-                        if(currState == JS_VALUE_ARRAY_ELEMENT_SEPERATOR_OR_END)
+                        /*if(currState == JS_VALUE_ARRAY_ELEMENT_SEPERATOR_OR_END)
                         {
                             output.prevCommaInSubPart = currIter;
-                        }
+                        }*/
                         output.hasElementInSubPart = 1;
                     }
                     if((input.element+output.pathLevel)->elementTypeIndex != 0 &&
@@ -892,3 +892,37 @@ double TextToDouble(const char* start, const char* end)
     return value;
 }
 
+JSONRemoveOutput JSONRemove(JSONRemoveInput input)
+{
+    JSONRemoveOutput out = {0};
+    JSONParseInput parInp = {input.buff, input.element, input.elemLen, 1, 1, 0};
+    JSONParseOutput parOut = JSONParse(parInp);
+
+    //removal types
+    //1. single element: no worry 
+    //2. Multiple, first element: remove after comma
+    //3. Multiple, mid element: remove after comma
+    //4. Multiple, last element: remove former comma
+
+    if(parOut.searchState == JSS_FOUND_COMPLETE)
+    {
+        out.value = 1;
+        //char* frmChar = parOut.valueEnd, *toChar = parOut.hasElementInSubPart == 1 ? parOut.prevCommaInSubPart : parOut.keyStart;
+        char* frmChar = parOut.valueEnd, *toChar = input.element[input.elemLen - 1].elementTypeIndex == 0 ? parOut.keyStart : parOut.valueStart;
+        while(*(--toChar) == ' ');
+        if(*toChar != ',')
+        {
+            toChar++;
+            frmChar--;
+            while(*(++frmChar) == ' ');
+            if(*frmChar == ',') {frmChar++;}
+        }
+        while(*frmChar != '\0')
+        {
+            *toChar++ = *frmChar++;
+        }
+        *toChar = *frmChar;
+    }
+
+    return out;
+}

@@ -108,7 +108,7 @@ typedef struct JSONParseOutput
     JSONStates jsonStateForSearch;
     JSONSearchStates searchState;
     int lastArrayLevel;
-    char* prevCommaInSubPart;
+    //char* prevCommaInSubPart;
     char hasElementInSubPart;
     //char* lastObjStart;
 } JSONParseOutput;
@@ -128,9 +128,23 @@ typedef struct JSONSetOutput
     unsigned char value;
 } JSONSetOutput;
 
+typedef struct JSONRemoveInput
+{
+    char* buff; 
+    int buffLen; 
+    PathElement* element; 
+    int elemLen; 
+} JSONRemoveInput;
+
+typedef struct JSONRemoveOutput
+{
+    unsigned char value;
+} JSONRemoveOutput;
+
 
 JSONParseOutput JSONParse(JSONParseInput input);
 JSONSetOutput JSONSet(JSONSetInput input);
+JSONRemoveOutput JSONRemove(JSONRemoveInput input);
 
 //unsigned char TextToBool(const char* start, const char* end);
 double TextToDouble(const char* start, const char* end);
