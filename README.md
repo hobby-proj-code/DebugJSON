@@ -48,7 +48,7 @@ block-beta
     space space space space space
     block:jl:5
         columns 3
-        space d3>"JSON Libarary"]:1 space 
+        space d3>"JSON Library"]:1 space 
         space space space
         space r["JSON Library"] space
     end
@@ -81,7 +81,7 @@ block-beta
     space space space space space
     block:jl:5
         columns 3
-        space d2>"JSON Libarary"]:1 space 
+        space d2>"JSON Library"]:1 space 
         space space space
         r["JSON Library"] space m("Memory storage for JSON object")
 
