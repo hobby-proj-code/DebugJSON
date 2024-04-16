@@ -78,7 +78,8 @@ unsigned char DoubleToText(double value, char** buffer)
         while(1)
         {
             *(*buffer)++ = 48 + a;
-            (minorNumber-=a)*=10;
+            minorNumber = (minorNumber - a) * 10;
+            //(minorNumber-=a)*=10;
             if(minorNumber >= 9.9f){break;}
             a = minorNumber;
         }
