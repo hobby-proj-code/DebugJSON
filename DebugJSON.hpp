@@ -15,12 +15,12 @@ class JSONSearchResult
 {
 public:
     bool status = false;
-    using ValueDeclarationType = typename std::conditional_t<std::is_same_v<ReturnType, IsNull>,bool,ReturnType>;
+    using ValueDeclarationType = typename std::conditional<std::is_same<ReturnType, IsNull>::value,bool,ReturnType>::type;
     ValueDeclarationType value{};
 
-    using JSONSearchResultGetDefaultType = typename std::conditional_t<
-        std::is_array_v<ReturnType> && std::is_same_v<std::remove_all_extents_t<ReturnType>, char>,
-        const char *, std::conditional_t<std::is_same_v<ReturnType, IsNull>,bool,ReturnType>>;
+    using JSONSearchResultGetDefaultType = typename std::conditional<
+        std::is_array<ReturnType>::value && std::is_same<typename std::remove_all_extents<ReturnType>::type, char>::value,
+        const char *, typename std::conditional<std::is_same<ReturnType, IsNull>::value,bool,ReturnType>::type>::type;
 
     JSONSearchResult() {}
     JSONSearchResult(JSONParseOutput output)
@@ -46,7 +46,7 @@ public:
                 value = TextToDouble(output.valueStart, output.valueEnd);
             }
         }
-        else if constexpr (std::is_array_v<ReturnType> && std::is_same_v<std::remove_all_extents_t<ReturnType>, char>)
+        else if constexpr (std::is_array<ReturnType>::value && std::is_same<typename std::remove_all_extents<ReturnType>::type, char>::value)
         {
             if (status = (output.searchState == JSONSearchStates::JSS_FOUND_COMPLETE && (output.jsonStateForSearch == JS_VALUE_STRING)))
             {
@@ -75,7 +75,7 @@ public:
         {
             return get(0);
         }
-        else if constexpr (std::is_array_v<ReturnType> && std::is_same_v<std::remove_all_extents_t<ReturnType>, char>)
+        else if constexpr (std::is_array<ReturnType>::value && std::is_same<typename std::remove_all_extents<ReturnType>::type, char>::value)
         {
             return get("");
         }
@@ -115,6 +115,7 @@ public:
     char *jsonBuff = nullptr;
     int buffSize = 0;
     bool status = false;
+    JSON(){}
     JSON(char *jsonBuffer, int size) : jsonBuff(jsonBuffer), buffSize(size) {}
 
     template <class GetType, typename... Args>
@@ -188,8 +189,8 @@ public:
             double val = obj;
             return JSONSet({jsonBuff, buffSize, pathElems, sizeof(pathElems) / sizeof(PathElement), &val, JVT_NUMBER}).value;
         }
-        else if constexpr ((std::is_array_v<SetType> && std::is_same_v<std::remove_all_extents_t<SetType>, char>)
-            || std::is_same_v<const char*, SetType>)
+        else if constexpr ((std::is_array<SetType>::value && std::is_same<typename std::remove_all_extents<SetType>::type, char>::value)
+            || std::is_same<const char*, SetType>::value)
         {
             return JSONSet({jsonBuff, buffSize, pathElems, sizeof(pathElems) / sizeof(PathElement), (void*)obj, JVT_STRING}).value;
         }
